@@ -1,14 +1,16 @@
+require_relative "wallet"
+
 class Actor
 
-  attr_accessor :name, :bankroll
+  attr_accessor :name, :wallet
 
-  def initialize(name, bankroll)
+  def initialize(name, money)
     @name = name
-    @bankroll = bankroll
+    @wallet = Waller.new(bankroll)
   end
 
   def to_s
-    "#{@name} - $#{@bankroll}"
+    "#{@name} - #{@wallet}"
   end
 
 end
@@ -21,6 +23,7 @@ HighRollerAmount = 100000.00
 LowRollerWeight = 70
 MidRollerWeight = 25
 HighRollerWeight = 5
+
 def make_player
   name = Names.sample
   roller_decision = rand(100)
