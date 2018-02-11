@@ -6,7 +6,7 @@ class Actor
 
   def initialize(name, money)
     @name = name
-    @wallet = Waller.new(bankroll)
+    @wallet = Wallet.new(money)
   end
 
   def to_s
