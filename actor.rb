@@ -24,7 +24,7 @@ LowRollerWeight = 70
 MidRollerWeight = 25
 HighRollerWeight = 5
 
-def make_player
+def make_actor 
   name = Names.sample
   roller_decision = rand(100)
   roller_value = roller_decision < LowRollerWeight ? LowRollerAmount :

@@ -6,4 +6,7 @@ class Library
 
   class WalletError < Error
   end
+
+  class DeckError < Error
+  end
 end
