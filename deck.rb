@@ -2,6 +2,10 @@ require_relative 'exception'
 
 class Card
 
+  include Comparable
+
+  attr_reader :value, :suit
+
   @@suits = [:SPADES, :CLUBS, :DIAMONDS, :HEARTS]
   @@values = (1..13).to_a
   @@values_to_words = {
@@ -22,6 +26,10 @@ class Card
   def initialize(value, suit)
     @value = value
     @suit = suit
+  end
+
+  def <=>(other)
+    @value > other.value ? 1 : @value < other.value ? -1 : 0
   end
 
   def to_s
