@@ -23,19 +23,19 @@ def high_or_low(actor)
 
   # Ugly spaghetti code
   # "Better to have it done and ugly"
-  cur_card = deck.draw
-  next_card = deck.draw
-  guess = prompt("Card is #{cur_card}\nnext is higher(H) or lower(L)?")
-  guess_high = guess.upcase == "H"
-  puts "Next card is #{next_card}"
-  #handle winning conditions first
-  if next_card < cur_card && !guess_high || next_card > cur_card && guess_high
-    puts "You won!"
-    actor.wallet.deposit(initial_wager)
-  else
-    puts "You lost!"
-    actor.wallet.withdraw(initial_wager)
-  end
+    cur_card = deck.draw
+    next_card = deck.draw
+    guess = prompt("Card is #{cur_card}\nnext is higher(H) or lower(L)?")
+    guess_high = guess.upcase == "H"
+    puts "Next card is #{next_card}"
+    #handle winning conditions first
+    if next_card < cur_card && !guess_high || next_card > cur_card && guess_high
+      puts "You won!"
+      actor.wallet.deposit(initial_wager)
+    else
+      puts "You lost!"
+      actor.wallet.withdraw(initial_wager)
+    end
 end
 
 # I started to get lost in the probability with this one
@@ -106,5 +106,37 @@ def slot_machine(actor)
   else
     actor.wallet.deposit(reward_multiplier * reward)
     puts "YOU WON $#{reward_multiplier * reward}"
+  end
+end
+
+IntroText = "WELCOME TO SYRUP HEARTS CASINO!"
+
+MenuText = "1 - Higher Or Lower
+2 - Coin Slots
+3 - Leave"
+
+
+def game_loop
+  player = make_actor
+  puts "Starting game as #{player.name.upcase}"
+  puts "\n." * 3
+  puts IntroText
+
+  while player.wallet.money > 0
+    puts "You have #{player.wallet}"
+    option = prompt(MenuText)
+
+    #For now we will assume the input is valid.
+
+    case option
+    when "1"
+      high_or_low player
+    when "2"
+      slot_machine player
+    when "3"
+      exit
+    else
+      puts "Invalid Option"
+    end
   end
 end
