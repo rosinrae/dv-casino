@@ -38,3 +38,73 @@ def high_or_low(actor)
   end
 end
 
+# I started to get lost in the probability with this one
+# But I don't really have time to work through all that
+# I used the Complex Slot Machine model described here:
+# https://edspi31415.blogspot.com/2014/01/probability-odds-of-winning-at-slot.html
+SlotSymbols1 = ([:BAR] + [:SEVEN] * 3 + [:CHERRY] * 4 + [:ORANGE] * 5 + [:BANANA] * 5 + [:LEMON] * 5).shuffle
+SlotSymbols2 = ([:BAR] + [:SEVEN] + [:CHERRY] * 3 + [:ORANGE] * 6 + [:BANANA] * 6 + [:LEMON] * 6).shuffle
+SlotSymbols3 = SlotSymbols2.shuffle
+CherryReward3 = 20
+CherryReward2 = 4
+CherryReward1 = 1
+BarReward     = 500 #  60
+SevenReward   = 250 # 40
+FruitReward   = 10
+def slot_reward(slot_arr)
+  cherry_count = slot_arr.count(:CHERRY)
+  if cherry_count == 3
+    return CherryReward3
+  elsif cherry_count == 2
+    return CherryReward2
+  elsif cherry_count == 1
+    return CherryReward1
+  elsif slot_arr.all? { |x| x == :BAR }
+    return BarReward
+  elsif slot_arr.all? { |x| x == :SEVEN }
+    return SevenReward
+  elsif slot_arr.all? { |x| x == :ORANGE || x == :LEMON || x == :BANANA }
+    return FruitReward
+  else
+    return 0 # sorry nothing
+  end
+end
+
+def ellipses(seconds=0.5, n=3)
+  (1..n).each do |i|
+    sleep(seconds)
+    print('.')
+  end
+  sleep(seconds)
+end
+
+
+def slot_machine(actor)
+
+  reward_multiplier = 1
+  
+  if actor.wallet.money < 5 
+    puts "Too broke to try the slots"
+    return
+  end
+
+  actor.wallet.withdraw(5)
+
+
+  puts "##### SPINNING THE SLOTS #####"
+  results = [SlotSymbols1.sample, SlotSymbols2.sample, SlotSymbols3.sample]
+  reward = slot_reward(results)
+  #ellipses 0.33
+  print(results[0])
+  #ellipses 0.66
+  print(results[1])
+  #ellipses 0.90
+  print("#{results[2]}\n")
+  if reward == 0
+    puts "SORRY NOTHING"
+    return "SORRY NOTHING"
+  else
+    actor.wallet.deposit(reward_multiplier * reward)
+    puts "YOU WON $#{reward_multiplier * reward}"
+  end
+end

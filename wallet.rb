@@ -2,6 +2,8 @@ require_relative "exception"
 
 class Wallet
 
+  attr_reader :money
+
   def initialize(money)
     @money = money
   end
