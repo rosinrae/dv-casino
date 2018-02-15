@@ -91,14 +91,13 @@ def slot_machine(actor)
   actor.wallet.withdraw(5)
 
 
-  puts "##### SPINNING THE SLOTS #####"
   results = [SlotSymbols1.sample, SlotSymbols2.sample, SlotSymbols3.sample]
   reward = slot_reward(results)
-  #ellipses 0.33
+  ellipses 0.33
   print(results[0])
-  #ellipses 0.66
+  ellipses 0.66
   print(results[1])
-  #ellipses 0.90
+  ellipses 0.70
   print("#{results[2]}\n")
   if reward == 0
     puts "SORRY NOTHING"
