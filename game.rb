@@ -5,8 +5,11 @@ require_relative 'interactive'
 
 LowestCard = Card.new(3, :SPADES)
 HighestCard = Card.new(11, :SPADES)
+HigherOrLowerRounds = 8
 
-def validate_wager(min, max, text)
+# Makes sure the input received is between min & max
+
+def validate_wager(text, min, max)
   prompt_text = "#{text}? Min: $#{min}, Max: $#{max}"
   while true
     wager = prompt(prompt_text).to_i
@@ -18,8 +21,44 @@ def validate_wager(min, max, text)
   end
 end
 
+def compare_opts(op, input)
+  op.upcase == input.upcase
+end
+
+# If default_op1 is true, then any input other than op2 will return true
+# otherwise, method is guaranteed to return
+# true iff user inputs op1
+# false iff user inputs op2
+def binary_option(text, op1, op2, default_op1=true)
+  prompt_text = "#{text}? #{op1}/#{op2}#{default_op1 ? " - (default: #{op1})": nil}"
+
+  if default_op1
+    input = prompt(prompt_text)
+    return !compare_opts(op2, input) # False if input == op2, otherwise True
+  else
+    while true
+      input = prompt(prompt_text)
+      if compare_opts(op1, input) # True if op1
+        return true
+      elsif compare_opts(op2, input) # False if op2
+        return false
+      else
+        puts "Invalid option" # Don't let us stop until we have a valid option
+      end
+    end
+  end
+end
+
+# HIGH OR LOW
+# use cards from 3 to Jack
+# get an initial pool up to player's money
+# make wagers from there, minimum half of the pool
+# if player guesses correctly, add wager to pool
+# if player guesses incorrectly, take wager from the pool
+# go for 8 rounds or until the pool is empty
+
 def high_or_low(actor)
-  pool = validate_wager(1, actor.wallet.money, "Initial Pool")
+  pool = validate_wager("Initial Pool", 1, actor.wallet.money)
   actor.wallet.withdraw pool
   deck = Deck.new()
   # Clear out any cards that are too high or low to play with
@@ -28,13 +67,12 @@ def high_or_low(actor)
 
   # Ugly spaghetti code
   # "Better to have it done and ugly"
-  for i in (1..8)
-    wager = validate_wager(pool/2, pool, "Wager")
+  for i in (1..HigherOrLowerRounds)
+    wager = validate_wager("Wager", pool/2, pool)
 
     cur_card = deck.draw
     next_card = deck.draw
-    guess = prompt("Card is #{cur_card}\nnext is higher(H) or lower(L)?")
-    guess_high = guess.upcase == "H"
+    guess_high = binary_option("Card is #{cur_card}\nnext is higher or lower", "H", "L")
     puts "Next card is #{next_card}"
 
     #handle winning conditions first
@@ -95,33 +133,33 @@ def ellipses(seconds=0.5, n=3)
   sleep(seconds)
 end
 
+SlotCost = 5
 
 def slot_machine(actor)
 
   reward_multiplier = 1
+  playing = true
   
-  if actor.wallet.money < 5 
-    puts "Too broke to try the slots"
-    return
-  end
+  while actor.wallet.money >= SlotCost and playing
+    actor.wallet.withdraw(SlotCost)
 
-  actor.wallet.withdraw(5)
+    results = [SlotSymbols1.sample, SlotSymbols2.sample, SlotSymbols3.sample]
+    reward = slot_reward(results)
 
+    ellipses 0.33
+    print(results[0])
+    ellipses 0.66
+    print(results[1])
+    ellipses 0.70
+    puts(results[2])
 
-  results = [SlotSymbols1.sample, SlotSymbols2.sample, SlotSymbols3.sample]
-  reward = slot_reward(results)
-  ellipses 0.33
-  print(results[0])
-  ellipses 0.66
-  print(results[1])
-  ellipses 0.70
-  print("#{results[2]}\n")
-  if reward == 0
-    puts "SORRY NOTHING"
-    return "SORRY NOTHING"
-  else
-    actor.wallet.deposit(reward_multiplier * reward)
-    puts "YOU WON $#{reward_multiplier * reward}"
+    if reward == 0
+      puts "SORRY NOTHING"
+    else
+      actor.wallet.deposit(reward_multiplier * reward)
+      puts "YOU WON $#{reward_multiplier * reward}"
+    end
+  playing = binary_option("Play again", "Y", "N")
   end
 end
 
