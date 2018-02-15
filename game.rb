@@ -3,19 +3,24 @@ require_relative 'actor'
 require_relative 'deck'
 require_relative 'interactive'
 
-# Structure of a gambling game:
-# Make wager
-# play game
-# win? award wager
-# lose? lose wager
-#
-# Some games require multiple inputs
-#
 LowestCard = Card.new(3, :SPADES)
 HighestCard = Card.new(11, :SPADES)
 
+def validate_wager(min, max, text)
+  prompt_text = "#{text}? Min: $#{min}, Max: $#{max}"
+  while true
+    wager = prompt(prompt_text).to_i
+    if min <= wager and wager <= max
+      return wager
+    else
+      puts "Invalid wager"
+    end
+  end
+end
+
 def high_or_low(actor)
-  initial_wager = prompt("Wager? Max: #{actor.wallet}").to_i
+  pool = validate_wager(1, actor.wallet.money, "Initial Pool")
+  actor.wallet.withdraw pool
   deck = Deck.new()
   # Clear out any cards that are too high or low to play with
   deck.deck.reject! { |card| card < LowestCard ||
@@ -23,19 +28,31 @@ def high_or_low(actor)
 
   # Ugly spaghetti code
   # "Better to have it done and ugly"
+  for i in (1..8)
+    wager = validate_wager(pool/2, pool, "Wager")
+
     cur_card = deck.draw
     next_card = deck.draw
     guess = prompt("Card is #{cur_card}\nnext is higher(H) or lower(L)?")
     guess_high = guess.upcase == "H"
     puts "Next card is #{next_card}"
+
     #handle winning conditions first
     if next_card < cur_card && !guess_high || next_card > cur_card && guess_high
-      puts "You won!"
-      actor.wallet.deposit(initial_wager)
+      puts "Correct!"
+      pool += wager
     else
-      puts "You lost!"
-      actor.wallet.withdraw(initial_wager)
+      puts "Incorrect!"
+      pool -= wager
+      
+      if pool == 0
+        puts "Pool is empty! Sorry!"
+        break
+      end
+
     end
+  end
+  actor.wallet.deposit pool
 end
 
 # I started to get lost in the probability with this one
@@ -118,7 +135,7 @@ MenuText = "1 - Higher Or Lower
 def game_loop
   player = make_actor
   puts "Starting game as #{player.name.upcase}"
-  puts "\n." * 3
+  puts ".\n.\n."
   puts IntroText
 
   while player.wallet.money > 0
@@ -138,4 +155,5 @@ def game_loop
       puts "Invalid Option"
     end
   end
+  puts "You're out of money, bye!"
 end
