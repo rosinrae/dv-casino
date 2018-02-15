@@ -1,3 +1,3 @@
 Command line casino simulation, for DevPoint
 
-run with `main.rb`
+run with `ruby main.rb`
