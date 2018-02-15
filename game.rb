@@ -104,11 +104,11 @@ def slot_machine(actor)
     results = [SlotSymbols1.sample, SlotSymbols2.sample, SlotSymbols3.sample]
     reward = slot_reward(results)
 
-    ellipses 0.33
+    ellipses 0.25
     print(results[0])
-    ellipses 0.66
+    ellipses 0.33
     print(results[1])
-    ellipses 0.70
+    ellipses 0.40
     puts(results[2])
 
     if reward == 0
